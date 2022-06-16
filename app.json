@@ -1,7 +1,7 @@
 {
     "name": "StepnLineBot",
     "description": "Stepn Line Bot API",
-    "repository": "https://github.com/kkdai/LineBotTemplate",
+    "repository": "https://github.com/librechat/stepn-bot",
     "keywords": ["Line", "go", "static"],
     "buildpacks": [
       {
