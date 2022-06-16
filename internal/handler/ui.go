@@ -22,15 +22,13 @@ func menu(p ...string) linebot.SendingMessage {
 				Data:        "lazy",
 				DisplayText: "GST-SOL 懶人匯率",
 			},
-			&linebot.PostbackAction{
-				Label:       string(linebot.ActionTypePostback),
-				DisplayText: "HELP",
-				Data:        "help",
+			&linebot.MessageAction{
+				Label: "HELP",
+				Text:  "help",
 			},
-			&linebot.PostbackAction{
-				Label:       string(linebot.ActionTypePostback),
-				DisplayText: "Free Msg Quota",
-				Data:        "quota",
+			&linebot.MessageAction{
+				Label: "Free Msg Quota",
+				Text:  "quota",
 			},
 		),
 	)
