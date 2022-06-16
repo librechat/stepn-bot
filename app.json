@@ -12,11 +12,11 @@
       }
     ],
     "env": {
-      "ChannelAccessToken": {
+      "CHANNEL_TOKEN": {
         "description": "Channel Access Token",
         "required": true
       },
-      "ChannelSecret": {
+      "CHANNEL_SECRET": {
         "description": "Channel Secret",
         "required": true
       }
