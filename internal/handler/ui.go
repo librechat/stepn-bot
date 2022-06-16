@@ -17,7 +17,7 @@ func menu(p ...string) linebot.SendingMessage {
 			"https://www.food365.shop/wp-content/uploads/2020/04/%E9%9F%AD%E8%8F%9C-500x500-1.jpg",
 			"Welcome to Stepn together", "A small walk worth a coffee break",
 			&linebot.PostbackAction{
-				Label:       string(linebot.ActionTypePostback),
+				Label:       "GST-SOL 懶人匯率",
 				DisplayText: "GST-SOL 懶人匯率",
 				Data:        "lazy",
 			},
