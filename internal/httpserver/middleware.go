@@ -8,7 +8,7 @@ import (
 )
 
 func (s *server) ValidateRequest(c *gin.Context) {
-	events, err := s.Bot.ParseRequest(c.Request)
+	events, err := s.Handler.Bot.ParseRequest(c.Request)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid signature"})

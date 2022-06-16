@@ -1,6 +1,8 @@
 package crypto
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -42,4 +44,26 @@ func GetCoinData(id string) *types.CoinsID {
 	//fmt.Printf("%v, %v\n", coin.Name, coin.MarketData.CurrentPrice["usd"])
 	c.Set(id, coin, cache.DefaultExpiration)
 	return coin
+}
+
+func GetCoinUSDPrice(id string) (float64, error) {
+	if coin := GetCoinData(id); coin != nil {
+		return coin.MarketData.CurrentPrice["usd"], nil
+	} else if coin := GetCoinData(CoinNickname[id]); coin != nil {
+		return coin.MarketData.CurrentPrice["usd"], nil
+	}
+	return 0, errors.New(fmt.Sprintf("Invalid coin name %s", id))
+}
+
+func Exchange(count float64, from string, to string) (float64, error) {
+	f, err := GetCoinUSDPrice(from)
+	if err != nil {
+		return 0, err
+	}
+	t, err := GetCoinUSDPrice(to)
+	if err != nil {
+		return 0, err
+	}
+
+	return count * f / t, nil
 }
