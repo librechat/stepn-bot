@@ -16,6 +16,12 @@ const (
 	GST_SOL = "green-satoshi-token"
 )
 
+var CoinNickname = map[string]string{
+	"gst": GST_SOL,
+	"sol": SOL,
+	"usd": "usd",
+}
+
 // cache the price
 var c = cache.New(5*time.Second, 10*time.Second)
 

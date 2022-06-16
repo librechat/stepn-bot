@@ -2,49 +2,56 @@ package handler
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/librechat/stepn-bot/internal/crypto"
 )
 
-var re = regexp.MustCompile(`([a-z0-9]*) ([a-z0-9]*) ([a-z0-9]*) ([a-z0-9]*)`)
-
 func HandleCmd(line string) string {
-	r := regex(line)
-	switch r[1] {
+	params := strings.Split(line, " ")
+	switch params[0] {
 	case "help":
 		return help()
+	case "lazy":
+		return lazy()
 	case "price":
-		return price()
+		if len(params) < 2 {
+			return "please input coin name"
+		}
+		return price(params[1])
 	case "exchange":
-		cnt, _ := strconv.ParseFloat(r[2], 64)
-		return exchange(cnt, r[3], r[4])
+		if len(params) < 4 {
+			return "please input valid params - exchange (currency val) (from which coin) (to which coin)"
+		}
+		cnt, _ := strconv.ParseFloat(params[1], 64)
+		return exchange(cnt, params[2], params[3])
 	}
 	return ""
 }
 
-func regex(line string) []string {
-	return re.FindStringSubmatch(line)
-}
-
 func help() string {
-	return "You may use below commands :-)\n1. help\n2. price - to show GST and SOL prices\n3. exchange (currency val) (from which coin) (to which coin) to get current exchanges\n"
+	return "Hi you may use below commands :-)\n1. help\n2. lazy - to show GST and SOL prices\n3. price (coin) - to show coin price\n4. exchange (currency val) (from which coin) (to which coin) to get current exchanges\nAvailable coins: usd, gst, sol\n"
 }
 
-func price() string {
+func lazy() string {
 	// show price
 	sol := crypto.GetCoinData(crypto.SOL).MarketData.CurrentPrice["usd"]     // 1 sol = ? usd
 	gst := crypto.GetCoinData(crypto.GST_SOL).MarketData.CurrentPrice["usd"] // 1 gst = ? usd
 
 	ex := gst * 100 / sol // 1 gst = ? sol
 
-	return fmt.Sprintf("1 SOL = %.5f USD\n1 GST = %.5f USD\n100 GST = %.5f SOL\n", sol, gst, ex)
+	return fmt.Sprintf("1 sol = %.5f usd\n1 gst = %.5f usd\n100 gst = %.5f sol\n", sol, gst, ex)
+}
+
+func price(id string) string {
+	// show price
+	return fmt.Sprintf("1 %s = %.5f usd\n", id, crypto.GetCoinData(crypto.CoinNickname[id]).MarketData.CurrentPrice["usd"])
 }
 
 func exchange(count float64, from string, to string) string {
-	f := crypto.GetCoinData(from).MarketData.CurrentPrice["usd"]
-	t := crypto.GetCoinData(to).MarketData.CurrentPrice["usd"]
+	f := crypto.GetCoinData(crypto.CoinNickname[from]).MarketData.CurrentPrice["usd"]
+	t := crypto.GetCoinData(crypto.CoinNickname[to]).MarketData.CurrentPrice["usd"]
 
 	return fmt.Sprintf("%.5f %s = %.5f %s\n", count, from, count*f/t, to)
 }
