@@ -18,18 +18,17 @@ func menu(p ...string) linebot.SendingMessage {
 			"Welcome to Stepn together", "A small walk worth a coffee break",
 			&linebot.PostbackAction{
 				Label:       string(linebot.ActionTypePostback),
-				Text:        "GST-SOL 懶人匯率",
 				DisplayText: "GST-SOL 懶人匯率",
 				Data:        "lazy",
 			},
-			/*&linebot.MessageAction{
+			&linebot.MessageAction{
 				Label: "HELP",
 				Text:  "help",
 			},
 			&linebot.MessageAction{
 				Label: "Free Msg Quota",
 				Text:  "quota",
-			},*/
+			},
 		),
 	)
 }
