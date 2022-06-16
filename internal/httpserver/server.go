@@ -1,10 +1,11 @@
 package httpserver
 
 import (
+	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/librechat/stepn-bot/internal/handler"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
@@ -27,22 +28,24 @@ func (s *server) Route() *gin.Engine {
 	s.Router = gin.Default()
 	s.Router.Use(s.ValidateRequest)
 	//s.Router.GET("/callback", s.Echo)
-	s.Router.POST("/callback", s.EchoLine)
+	s.Router.POST("/callback", s.Handle)
 
 	return s.Router
 }
 
-func (s *server) EchoLine(c *gin.Context) {
+func (s *server) Handle(c *gin.Context) {
 	var events []*linebot.Event
 	if val, ok := c.Get("events"); ok {
 		events, _ = val.([]*linebot.Event)
 	}
 
 	for _, event := range events {
-		if event.Type == linebot.EventTypeMessage {
+		switch event.Type {
+		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
-			// Handle only on text message
 			case *linebot.TextMessage:
+				msg := handler.Handle(message.Text)
+
 				// GetMessageQuota: Get how many remain free tier push message quota you still have this month. (maximum 500)
 				quota, err := s.Bot.GetMessageQuota().Do()
 				if err != nil {
@@ -50,10 +53,12 @@ func (s *server) EchoLine(c *gin.Context) {
 				}
 				// message.ID: Msg unique ID
 				// message.Text: Msg text
-				if _, err = s.Bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("msg ID:"+message.ID+":"+"Get:"+message.Text+" , \n OK! remain message:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
+				msg += fmt.Sprintf("remain Msg Count = %d", quota.Value)
+				if _, err = s.Bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
 					log.Print(err)
 				}
 			}
+		case linebot.EventTypePostback:
 		}
 	}
 }
