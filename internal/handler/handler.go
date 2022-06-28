@@ -16,6 +16,7 @@ var actionMap = map[string]func(...string) linebot.SendingMessage{
 	"help":     text(help),
 	"lazy":     text(lazy),
 	"price":    text(price),
+	"prices":   text(richPrice),
 	"exchange": text(exchange),
 	"menu":     menu,
 }
@@ -41,7 +42,6 @@ func handle(event *linebot.Event) linebot.SendingMessage {
 	switch event.Type {
 	case linebot.EventTypeMessage:
 		switch message := event.Message.(type) {
-		// message.ID: Msg unique ID, message.Text: Msg text
 		case *linebot.TextMessage:
 			cmd, params := parseCmd(message.Text)
 			if h, ok := actionMap[cmd]; ok {
@@ -49,8 +49,9 @@ func handle(event *linebot.Event) linebot.SendingMessage {
 			}
 		}
 	case linebot.EventTypePostback:
-		if h, ok := actionMap[event.Postback.Data]; ok {
-			return h()
+		cmd, params := parseCmd(event.Postback.Data)
+		if h, ok := actionMap[cmd]; ok {
+			return h(params...)
 		}
 	}
 	return actionMap["menu"]()

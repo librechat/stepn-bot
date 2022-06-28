@@ -13,16 +13,21 @@ import (
 )
 
 const (
+	USD     = "usd"
 	USDC    = "usd-coin"
 	SOL     = "solana"
 	GST_SOL = "green-satoshi-token"
+	GMT     = ""
 )
 
 var CoinNickname = map[string]string{
 	"gst": GST_SOL,
 	"sol": SOL,
+	"gmt": GMT,
 	"usd": "usd",
 }
+
+var RichExchangeSupported = []string{"gst", "gmt", "sol", "usd"}
 
 // cache the price
 var c = cache.New(5*time.Second, 10*time.Second)
@@ -44,6 +49,25 @@ func GetCoinData(id string) *types.CoinsID {
 	//fmt.Printf("%v, %v\n", coin.Name, coin.MarketData.CurrentPrice["usd"])
 	c.Set(id, coin, cache.DefaultExpiration)
 	return coin
+}
+
+func GetCoinRichExchange(id string, coins []string) ([]float64, error) {
+	var coin *types.CoinsID
+	if coin = GetCoinData(id); coin == nil {
+		if coin = GetCoinData(CoinNickname[id]); coin == nil {
+			return nil, errors.New(fmt.Sprintf("Invalid coin name %s", id))
+		}
+	}
+
+	ans := []float64{}
+	for _, c := range coins {
+		name := c
+		if val, ok := CoinNickname[c]; ok {
+			name = val
+		}
+		ans = append(ans, coin.MarketData.CurrentPrice[name])
+	}
+	return ans, nil
 }
 
 func GetCoinUSDPrice(id string) (float64, error) {

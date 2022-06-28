@@ -15,10 +15,38 @@ func lazy(params ...string) string {
 	// show price
 	sol := crypto.GetCoinData(crypto.SOL).MarketData.CurrentPrice["usd"]     // 1 sol = ? usd
 	gst := crypto.GetCoinData(crypto.GST_SOL).MarketData.CurrentPrice["usd"] // 1 gst = ? usd
+	//gmt := crypto.GetCoinData(crypto.GMT).MarketData.CurrentPrice["usd"]
+	//gstGmt := gst / gmt
 
-	ex := gst * 100 / sol // 1 gst = ? sol
+	gstSol := gst * 100 / sol // 1 gst = ? sol
 
-	return fmt.Sprintf("1 sol = %.5f usd\n1 gst = %.5f usd\n100 gst = %.5f sol\n", sol, gst, ex)
+	return fmt.Sprintf("1 gst = %.5f usd\n1 sol = %.5f usd\n100 gst = %.5f sol\n", gst, sol, gstSol)
+}
+
+func richPrice(params ...string) string {
+	if len(params) < 1 {
+		return "Please input price (coin)"
+	}
+
+	target := params[0]
+	exchanges, err := crypto.GetCoinRichExchange(target, crypto.RichExchangeSupported)
+	if err != nil {
+		return err.Error()
+	}
+	rate := int64(1)
+	if len(params) > 1 {
+		if rate, err = strconv.ParseInt(params[2], 10, 64); err != nil {
+			return "Failed to parse exchange amount"
+		}
+	}
+
+	msg := ""
+	for i, coin := range crypto.RichExchangeSupported {
+		if target != coin {
+			msg += fmt.Sprintf("%d %s = %.5f %s\n", rate, target, float64(rate)*exchanges[i], coin)
+		}
+	}
+	return msg
 }
 
 func price(params ...string) string {
