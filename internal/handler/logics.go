@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/librechat/stepn-bot/internal/crypto"
 )
@@ -35,18 +36,18 @@ func richPrice(params ...string) string {
 	}
 	rate := int64(1)
 	if len(params) > 1 {
-		if rate, err = strconv.ParseInt(params[2], 10, 64); err != nil {
+		if rate, err = strconv.ParseInt(params[1], 10, 64); err != nil {
 			return "Failed to parse exchange amount"
 		}
 	}
 
-	msg := ""
+	msgs := []string{}
 	for i, coin := range crypto.RichExchangeSupported {
 		if target != coin {
-			msg += fmt.Sprintf("%d %s = %.5f %s\n", rate, target, float64(rate)*exchanges[i], coin)
+			msgs = append(msgs, fmt.Sprintf("%d %s = %.5f %s", rate, target, float64(rate)*exchanges[i], coin))
 		}
 	}
-	return msg
+	return strings.Join(msgs, "\n")
 }
 
 func price(params ...string) string {

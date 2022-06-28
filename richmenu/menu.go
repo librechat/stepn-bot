@@ -4,7 +4,24 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func RichMenu() *linebot.RichMenu {
+func CreateRichMenu(bot *linebot.Client) error {
+	menu, image := RichMenu()
+	resp, err := bot.CreateRichMenu(*menu).Do()
+	if err != nil {
+		return err
+	}
+
+	if _, err := bot.UploadRichMenuImage(resp.RichMenuID, image).Do(); err != nil {
+		return err
+	}
+
+	if _, err := bot.SetDefaultRichMenu(resp.RichMenuID).Do(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RichMenu() (*linebot.RichMenu, string) {
 	return &linebot.RichMenu{
 		Size: linebot.RichMenuSize{
 			Width:  800,
@@ -23,7 +40,7 @@ func RichMenu() *linebot.RichMenu {
 				},
 				Action: linebot.RichMenuAction{
 					Type: linebot.RichMenuActionTypePostback,
-					Data: "price gst 100",
+					Data: "prices gst 100",
 				},
 			},
 			{
@@ -35,7 +52,7 @@ func RichMenu() *linebot.RichMenu {
 				},
 				Action: linebot.RichMenuAction{
 					Type: linebot.RichMenuActionTypePostback,
-					Data: "price gmt",
+					Data: "prices gmt",
 				},
 			},
 			{
@@ -47,7 +64,7 @@ func RichMenu() *linebot.RichMenu {
 				},
 				Action: linebot.RichMenuAction{
 					Type: linebot.RichMenuActionTypePostback,
-					Data: "price sol",
+					Data: "prices sol",
 				},
 			},
 			{
@@ -59,9 +76,9 @@ func RichMenu() *linebot.RichMenu {
 				},
 				Action: linebot.RichMenuAction{
 					Type: linebot.RichMenuActionTypePostback,
-					Data: "price usd",
+					Data: "prices usd",
 				},
 			},
 		},
-	}
+	}, "./richmenu/images/menu.png"
 }

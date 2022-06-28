@@ -17,7 +17,7 @@ const (
 	USDC    = "usd-coin"
 	SOL     = "solana"
 	GST_SOL = "green-satoshi-token"
-	GMT     = ""
+	GMT     = "stepn"
 )
 
 var CoinNickname = map[string]string{
@@ -52,20 +52,18 @@ func GetCoinData(id string) *types.CoinsID {
 }
 
 func GetCoinRichExchange(id string, coins []string) ([]float64, error) {
-	var coin *types.CoinsID
-	if coin = GetCoinData(id); coin == nil {
-		if coin = GetCoinData(CoinNickname[id]); coin == nil {
-			return nil, errors.New(fmt.Sprintf("Invalid coin name %s", id))
-		}
+	target, err := GetCoinUSDPrice(id)
+	if err != nil {
+		return nil, err
 	}
 
 	ans := []float64{}
 	for _, c := range coins {
-		name := c
-		if val, ok := CoinNickname[c]; ok {
-			name = val
+		price, err := GetCoinUSDPrice(c)
+		if err != nil {
+			return nil, err
 		}
-		ans = append(ans, coin.MarketData.CurrentPrice[name])
+		ans = append(ans, target/price)
 	}
 	return ans, nil
 }
